@@ -6,6 +6,9 @@ use Civi\Cv\Util\Process;
 class PopCommandTest extends \Civi\Cv\CivilTestCase {
 
   public function setup() {
+    if (array() !== PopCommand::checkDependencies()) {
+      $this->markTestSkipped('Cannot test pop due to missing dependencies');
+    }
     parent::setup();
   }
 

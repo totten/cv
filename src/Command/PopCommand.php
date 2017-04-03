@@ -26,25 +26,51 @@ class PopCommand extends BaseCommand {
     parent::__construct($name);
   }
 
+  /**
+   * Determine whether pop dependencies are available.
+   *
+   * @return array
+   *   Array of messages.
+   */
+  public static function checkDependencies() {
+    $r = array();
+    if (!function_exists('yaml_parse_file')) {
+      $r[] = 'Missing PHP-YAML extension (http://php.net/manual/en/book.yaml.php)';
+    }
+    return $r;
+  }
+
   protected function configure() {
+    $deps = static::checkDependencies();
+    $suffix = $deps ? ' (unavailable)' : '';
+    $suffixLong = "\nPop is not available due to dependency issues:\n   * " . implode("\n   * ", $deps) . "\n";
     $this
       ->setName('pop')
-      ->addArgument('file', InputArgument::REQUIRED, 'yaml file with entities to populate')
+      ->addArgument('file', InputArgument::REQUIRED, 'YAML file with entities to populate')
       ->addOption('out', NULL, InputOption::VALUE_REQUIRED, 'Output format (' . implode(',', Encoder::getFormats()) . ')', Encoder::getDefaultFormat())
-      ->setDescription('Populate a site with entities from a yaml file')
-      ->setHelp('Populate a site with entities from a yaml file
+      ->setDescription('Populate a site with entities from a YAML file' . $suffix)
+      ->setHelp('Populate a site with entities from a YAML file' . $suffix . '
 
 Examples:
   cv pop contacts.yml
 
 For documentation about the YAML file format, see:
   https://github.com/michaelmcandrew/pop
-');
+' . $suffixLong);
     parent::configureBootOptions();
   }
 
   protected function execute(InputInterface $input, OutputInterface $output) {
     $this->boot($input, $output);
+
+    if (array() !== static::checkDependencies()) {
+      $this->sendResult($input, $output, array(
+        'is_error' => 1,
+        'error_message' => 'Pop is not available due to dependency issues: ' . implode(', ', static::checkDependencies()),
+      ));
+      return 1;
+    }
+
     $pop = new Pop($output);
     $pop->setInteractive($input->isInteractive());
     if ($input->getOption('out') != 'json-pretty') {
