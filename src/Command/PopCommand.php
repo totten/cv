@@ -37,7 +37,8 @@ class PopCommand extends BaseCommand {
 Examples:
   cv pop contacts.yml
 
-NOTE: See doc/pop.md for usage
+For documentation about the YAML file format, see:
+  https://github.com/michaelmcandrew/pop
 ');
     parent::configureBootOptions();
   }
@@ -50,11 +51,12 @@ NOTE: See doc/pop.md for usage
       $pop->setInteractive(0);
     }
     var_dump();
-    $fs = new Filesystem;
-    if($fs->isAbsolutePath($input->getArgument('file'))){
+    $fs = new Filesystem();
+    if ($fs->isAbsolutePath($input->getArgument('file'))) {
       $pop->process($input->getArgument('file'));
-    }else{
-      $pop->process($_SERVER['PWD']. DIRECTORY_SEPARATOR . $input->getArgument('file'));
+    }
+    else {
+      $pop->process($_SERVER['PWD'] . DIRECTORY_SEPARATOR . $input->getArgument('file'));
     }
 
     if ($input->getOption('out') != 'json-pretty') {
