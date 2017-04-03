@@ -3,7 +3,6 @@ namespace Civi\Cv;
 
 use Civi\Cv\Util\Process;
 use Civi\Cv\Application;
-use Civi\Cv\Util\Process;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
 
