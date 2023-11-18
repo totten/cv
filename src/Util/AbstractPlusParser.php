@@ -153,6 +153,31 @@ abstract class AbstractPlusParser {
   }
 
   /**
+   * @param $expr
+   *   Ex: 'a+=z'
+   *   Ex: 'a.b.c={"z":1}'
+   * @return array
+   *   Ex: ['a', '+=', 'z']
+   *   Ex: ['a.b.c', '=', [z => 1]]
+   */
+  public function parseRichOp($expr) {
+    if (preg_match('/^!([a-zA-Z0-9_:\.]+)\s*$/i', $expr, $matches)) {
+      return [$matches[1], '!'];
+    }
+    elseif (preg_match('/^([a-zA-Z0-9_:\.]+)\s*(=|\[\]=|\+=|-=)\s*(.*)$/i', $expr, $matches)) {
+      if (!empty($matches[3])) {
+        return [$matches[1], strtoupper(trim($matches[2])), $this->parseValueExpr(trim($matches[3]))];
+      }
+      else {
+        return [$matches[1], strtoupper($matches[2])];
+      }
+    }
+    else {
+      throw new \RuntimeException("Error parsing expression: $expr");
+    }
+  }
+
+  /**
    * @param array $params
    * @param string $type
    *   The name of the plus parameter.
