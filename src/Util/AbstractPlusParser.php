@@ -162,14 +162,14 @@ abstract class AbstractPlusParser {
    */
   public function parseRichOp($expr) {
     if (preg_match('/^!([a-zA-Z0-9_:\.]+)\s*$/i', $expr, $matches)) {
-      return [$matches[1], '!'];
+      return [$this->parseKey($matches[1]), '!'];
     }
     elseif (preg_match('/^([a-zA-Z0-9_:\.]+)\s*(=|\[\]=|\+=|-=)\s*(.*)$/i', $expr, $matches)) {
       if (!empty($matches[3])) {
-        return [$matches[1], strtoupper(trim($matches[2])), $this->parseValueExpr(trim($matches[3]))];
+        return [$this->parseKey($matches[1]), strtoupper(trim($matches[2])), $this->parseValueExpr(trim($matches[3]))];
       }
       else {
-        return [$matches[1], strtoupper($matches[2])];
+        return [$this->parseKey($matches[1]), strtoupper($matches[2])];
       }
     }
     else {

@@ -40,8 +40,7 @@ class SettingArgParser extends AbstractPlusParser {
     ];
     $type = $aliases[$type] ?? $type;
 
-    [$key, $op, $value] = $this->parseRichOp($expr);
-    $keyParts = explode($this->pathDelimiter, $key);
+    [$keyParts, $op, $value] = $this->parseRichOp($expr);
     $this->includeBaseSetting($params, $keyParts[0]);
 
     switch ("$type $op") {

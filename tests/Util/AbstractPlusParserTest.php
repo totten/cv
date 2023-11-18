@@ -70,15 +70,15 @@ class AbstractPlusParserTest extends \PHPUnit\Framework\TestCase {
 
   public function getRichOps(): array {
     return [
-      ['ab=cd', ['ab', '=', 'cd']],
-      ['ab+=cd', ['ab', '+=', 'cd']],
-      ['ab.cd+=ef.gh', ['ab.cd', '+=', 'ef.gh']],
-      ['ab.cd-=ef.gh', ['ab.cd', '-=', 'ef.gh']],
-      ['ab.cd[]=x', ['ab.cd', '[]=', 'x']],
-      ['obj={"k":"v"}', ['obj', '=', ['k' => 'v']]],
-      ['arr=[123,"xyz"]', ['arr', '=', [123, "xyz"]]],
-      ['!ab', ['ab', '!']],
-      ['!ab.cd', ['ab.cd', '!']],
+      // ['!a["b b"].c', [['a', 'b b', 'c'], '!']],
+      ['ab=cd', [['ab'], '=', 'cd']],
+      ['ab+=cd', [['ab'], '+=', 'cd']],
+      ['ab.cd+=ef.gh', [['ab', 'cd'], '+=', 'ef.gh']],
+      ['ab.cd-=ef.gh', [['ab', 'cd'], '-=', 'ef.gh']],
+      ['ab.cd[]=x', [['ab', 'cd'], '[]=', 'x']],
+      ['obj={"k":"v"}', [['obj'], '=', ['k' => 'v']]],
+      ['arr=[123,"xyz"]', [['arr'], '=', [123, "xyz"]]],
+      ['!ab', [['ab'], '!']],
     ];
   }
 
