@@ -84,6 +84,75 @@ abstract class AbstractPlusParser {
   }
 
   /**
+   * Parse a key-path expression.
+   *
+   * This is similar to the left-hand-side of a Javascript assignment -- with some mix
+   * of dots, brackets, and quotes.
+   *
+   * @param string $expr
+   *   Ex: 'foo.bar.whiz.bang'
+   *   Ex: 'foo["bar"]["whiz"]["bang"]'
+   *   Ex: 'foo["dot.dot.dot"].bar'
+   *   Ex: 'foo["\"quote\""].bar
+   * @return array
+   *   Ex: ['foo', 'bar', 'whiz', 'bang']
+   *   Ex: ['foo', 'dot.dot.dot', 'bar']
+   *   Ex: ['foo', '"quote"', bar]
+   */
+  public function parseKey($expr): array {
+    $buffer = '.' . $expr;
+    $parts = [];
+    while ($buffer !== '') {
+      // Grab from front: .foobar
+      if (preg_match(';^\.([a-zA-Z0-9_\-]*)(.*)$;', $buffer, $m)) {
+        $parts[] = $m[1];
+        $buffer = $m[2];
+      }
+      // Grab from front: ["foo\nbar"]
+      // elseif (preg_match(';^\[(\"(?:\\.|[^\"\\])*\")\](.*);', $buffer, $m)) {
+      elseif (preg_match(';^\[(\"((\\\.)|[^\\\])*\")\](.*);U', $buffer, $m)) {
+        $parts[] = json_decode($m[1]);
+        $buffer = mb_substr($buffer, 2 + mb_strlen($m[1]));
+      }
+      // Grab from front [foo.bar]
+      // elseif (preg_match(';^\[([^\]]*)\](.*);U', $buffer, $m)) {
+      //   $parts[] = $m[1];
+      //   $buffer = $m[2];
+      // }
+      else {
+        throw new \RuntimeException("Malformed key-expression: $expr");
+      }
+    }
+    return $parts;
+  }
+
+  /**
+   * Parse a string that contains a list of elements.
+   *
+   * @param string $expr
+   *    Ex: '["one","two"]' (Multiple values, JSON)
+   *    Ex: '"one"' (One value, JSON)
+   *    Ex: 'one' (Bare string, explodable)
+   * @param string|NULL $delim
+   * @return array
+   */
+  public function parseList($expr, ?string $delim = ','): array {
+    if ($expr === '') {
+      return [];
+    }
+    switch ($expr[0]) {
+      case '[':
+        return $this->parseJsonNoisily($expr);
+
+      case '"':
+        return [$this->parseJsonNoisily($expr)];
+
+      default:
+        return ($delim === NULL) ? [$expr] : explode($delim, $expr);
+    }
+  }
+
+  /**
    * @param array $params
    * @param string $type
    *   The name of the plus parameter.
